@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta author="Piotr Koryzma">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test</title>
+  <!-- Bootstrap Import -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <!-- Custom Bootstrap Forced Styles -->
+  <style>
+    #container {
+      position: relative; }
+    #alert {
+      display: none;
+      text-transform: uppercase;
+      text-align: center; }
+    legend {
+      text-align: center; }
+    #stored {
+      width: 1.5em;
+      height: 1.5em; }
+    .usr-com {
+      display: none;
+      position: absolute;
+      width: 60%;
+      left: 20%;
+      top: 45%;
+      background-color: #ccc;
+      padding: 20px 20px;
+      border-radius: 5px;
+      z-index: 100;
+      -webkit-box-shadow: 13px 14px 33px 6px rgba(0,0,0,0.47);
+      -moz-box-shadow: 13px 14px 33px 6px rgba(0,0,0,0.47);
+      box-shadow: 13px 14px 33px 6px rgba(0,0,0,0.47);
+      text-align: center; }
+    .usr-com div {
+      width: 0;
+      height: 55px;
+      background-color: #5cb85c;
+      border-radius: 3px; }
+  </style>
+  <!-- JQuery Import -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+</head>
+<body>
+  <!-- Main Container -->
+  <div id="container" class="container jumbotron">
+    <!-- Alerts Container -->
+    <div id="alert" class="alert alert-danger" role="alert"></div>
+    <!-- Form Starts Here -->
+    <form class="form-horizontal" role="form">
+      <fieldset>
+        <legend>Payment Form</legend>
+        <!-- Credit Card Number Field -->
+        <div class="form-group">
+          <label class="col-sm-3 control-label" for="card-number">Card Number</label>
+          <div class="col-sm-3">
+            <input type="text" class="form-control" name="card-number" id="card-number" placeholder="Debit/Credit Card Number" maxlength="19">
+          </div>
+        </div>
+        <!-- Card Expiry Month And Year Field -->
+        <div class="form-group">
+          <label class="col-sm-3 control-label" for="expiry-month">Expiration Date</label>
+          <div class="col-sm-9">
+            <div class="row">
+              <div class="col-xs-2">
+                <input class="form-control col-sm-2" name="expiry-month" id="expiry-month" placeholder="Month" maxlength="2">
+              </div>
+              <div class="col-xs-2">
+                <input class="form-control" name="expiry-year" id="expiry-year" placeholder="Year" maxlength="4">
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Card CVV Field -->
+        <div class="form-group">
+          <label class="col-sm-3 control-label" for="cvv">Card CVV</label>
+          <div class="col-sm-1">
+            <input type="text" class="form-control" name="cvv" id="cvv" placeholder="XXX" maxlength="3">
+          </div>
+        </div>
+        <!-- Checkbox For Storing A Card -->
+        <div class="form-group">
+          <label class="col-sm-3 control-label" for="stored">Store the card</label>
+          <div class="col-sm-9">
+            <input type="checkbox" name="stored" id="stored">
+          </div>
+        </div>
+        <!-- Email Address Field Deactivated By Default -->
+        <div class="form-group">
+          <label class="col-sm-3 control-label" for="email">Email</label>
+          <div class="col-sm-6">
+            <input type="email" class="form-control" name="email" id="email" placeholder="Your email address" disabled>
+          </div>
+        </div>
+        <!-- Submit Button -->
+        <div class="form-group">
+          <div class="col-sm-offset-3 col-sm-9">
+            <button type="button" id="button" class="btn btn-success">Submit</button>
+          </div>
+        </div>
+      </fieldset>
+    </form>
+    <!-- Form Ends Here -->
+    <!-- User Communication Container -->
+    <div class="usr-com"><div></div></div>
+  </div>
+
+  <script>
+  document.addEventListener('DOMContentLoaded', function(){
+    // Main functions global handlers //
+    var ccnum = $('#card-number');
+    var email = $('#email');
+    var stored = $('#stored');
+    var benjamin = $('#button');
+    var alertBox = $('#alert');
+    // Main functions invoke
+    formatCardNum();
+    activateEmail();
+    submitForm();
+    // Email validation function
+    function properEmail(){
+      var emailHasAt = email.val().split('@');
+      var emailHasDot = email.val().split('.');
+      if ( emailHasAt[1] == undefined || emailHasDot[1] == undefined ) {
+        alertBox.empty();
+        alertBox.css('display', 'block');
+        alertBox.append('your email address is not valid');
+        email.css('background-color', '#f2dede')
+      } else {
+        alertBox.css('display', 'none');
+        email.css('background-color', '#fff')
+        sendForm();
+      }
+    }
+    // Sending form function
+    function sendForm() {
+      var container = $('.usr-com');
+      var containerDiv = $('.usr-com div');
+      container.css('display', 'block');
+      containerDiv.animate({width: "100%"}, 2000);
+      setTimeout(function(){
+        container.empty();
+        container.css('background-color', '#5cb85c');
+        container.append('<h3>Success</h3>')
+      }, 2000);
+    }
+    // Card CVV number validation 
+    function checkCCV(){
+      var cvv = $('#cvv').val();
+      cvv = cvv.replace(/[^0-9\.]+/g, "");
+      if (cvv.length == 3) {
+        if (stored.prop('checked')) {
+          alertBox.css('display', 'none');
+          $('#cvv').css('background-color', '#fff')
+          properEmail();
+        } else {
+          alertBox.css('display', 'none');
+          $('#cvv').css('background-color', '#fff')
+          sendForm();
+        }
+      } else {
+        alertBox.empty();
+        alertBox.css('display', 'block');
+        alertBox.append('enter a valid 3 digit ccv number');
+        $('#cvv').css('background-color', '#f2dede')
+      }  
+    }
+    // Card expiration date validation
+    function checkExpDate() {
+      var expMonth = $('#expiry-month');
+      var expYear = $('#expiry-year');
+      var date = new Date();
+      var year = date.getFullYear();
+      if ( expMonth.val() >= 1 && expMonth.val() <= 12 ) {
+        if ( expYear.val() >= year && expYear.val() <= year + 5 ) {
+          alertBox.css('display', 'none');
+          expYear.css('background-color', '#fff');
+          checkCCV();
+        } else {
+          alertBox.empty();
+          expMonth.css('background-color', '#fff');
+          alertBox.css('display', 'block');
+          alertBox.append('enter a valid year');
+          expYear.css('background-color', '#f2dede');
+        }
+      } else {
+        alertBox.empty();
+        alertBox.css('display', 'block');
+        alertBox.append('enter a valid month');
+        expMonth.css('background-color', '#f2dede');
+      }
+    }
+    // Form validation procedure starts here
+    function submitForm(){
+      benjamin.on('click', function(){
+        var numberVal = ccnum.val();
+        numberVal = numberVal.replace(/[^0-9\.]+/g, "");
+        if (numberVal.length == 16) {
+          alertBox.css('display', 'none');
+          ccnum.css('background-color', '#fff');
+          checkExpDate();
+        } else {
+          alertBox.empty();
+          alertBox.css('display', 'block');
+          alertBox.append('enter a valid card number');
+          ccnum.css('background-color', '#f2dede');
+        }        
+      })
+    }
+    // Email field activate, deactivate by clicking checkbox
+    function activateEmail(){
+      stored.change(function(){
+        if (this.checked) {
+          email.prop('disabled', false);
+        } else {
+          email.prop('disabled', true);
+        }
+      })
+    }
+    // Live credit card formatting every fourth digit
+    function formatCardNum(){
+      ccnum.on('keyup',function(){
+        var numberVal = ccnum.val();
+        if (numberVal.length == 4 || numberVal.length == 9 || numberVal.length == 14) {
+          numberVal += " ";
+          ccnum.val(numberVal);
+        }
+      })
+    }
+  })
+  </script>
+</body>
+</html>
